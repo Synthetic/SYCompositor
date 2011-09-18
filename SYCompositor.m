@@ -7,9 +7,6 @@
 //
 
 #import "SYCompositor.h"
-#import <SSToolkit/NSArray+SSToolkitAdditions.h>
-#import <SSToolkit/UIColor+SSToolkitAdditions.h>
-#import <HipstaProcessor/HPUtilities.h>
 
 NSString *const kSYCompositorModeKey = @"mode";
 NSString *const kSYCompositorRectKey = @"rect";
@@ -26,6 +23,83 @@ NSString *const kSYCompositorPersistentMaskKey = @"persistentMask";
 NSString *const kSYCompositorGradientKey = @"gradient";
 NSString *const kSYCompositorGradientColorsKey = @"gradientColors";
 NSString *const kSYCompositorGradientColorsHexesKey = @"gradientColorsHexes";
+
+static CGBlendMode _CGBlendModeWithString(NSString *string) {
+	if ([string isEqualToString:@"Multiply"]) {
+		return kCGBlendModeMultiply;
+	} else if ([string isEqualToString:@"Screen"]) {
+		return kCGBlendModeScreen;
+	} else if ([string isEqualToString:@"Overlay"]) {
+		return kCGBlendModeOverlay;
+	} else if ([string isEqualToString:@"Darken"]) {
+		return kCGBlendModeDarken;
+	} else if ([string isEqualToString:@"Lighten"]) {
+		return kCGBlendModeLighten;
+	} else if ([string isEqualToString:@"ColorDodge"]) {
+		return kCGBlendModeColorDodge;
+	} else if ([string isEqualToString:@"ColorBurn"]) {
+		return kCGBlendModeColorBurn;
+	} else if ([string isEqualToString:@"SoftLight"]) {
+		return kCGBlendModeSoftLight;
+	} else if ([string isEqualToString:@"HardLight"]) {
+		return kCGBlendModeHardLight;
+	} else if ([string isEqualToString:@"Difference"]) {
+		return kCGBlendModeDifference;
+	} else if ([string isEqualToString:@"Exclusion"]) {
+		return kCGBlendModeExclusion;
+	} else if ([string isEqualToString:@"Hue"]) {
+		return kCGBlendModeHue;
+	} else if ([string isEqualToString:@"Saturation"]) {
+		return kCGBlendModeSaturation;
+	} else if ([string isEqualToString:@"Color"]) {
+		return kCGBlendModeColor;
+	} else if ([string isEqualToString:@"Luminosity"]) {
+		return kCGBlendModeLuminosity;
+	} else if ([string isEqualToString:@"PlusLighter"]) {
+		return kCGBlendModePlusLighter;
+	} else if ([string isEqualToString:@"PlusDarker"]) {
+		return kCGBlendModePlusDarker;
+	} else if ([string isEqualToString:@"Clear"]) {
+		return kCGBlendModeClear;
+	}
+	
+	return kCGBlendModeNormal;
+}
+
+static NSUInteger _integerFromHexString(NSString *string) {
+	NSUInteger result = 0;
+	sscanf([string UTF8String], "%x", &result);
+	return result;
+}
+
+@interface UIColor (SYCompositorAdditions)
++ (UIColor *)_colorWithHex:(NSString *)hex;
+@end
+
+@implementation UIColor (SYCompositorAdditions)
+// Copied from SSToolkit
++ (UIColor *)_colorWithHex:(NSString *)hex {
+	// Remove `#`
+	if ([[hex substringWithRange:NSMakeRange(0, 1)] isEqualToString:@"#"]) {
+		hex = [hex substringFromIndex:1];
+	}
+	
+	// Invalid if not 3, or 6 characters
+	NSUInteger length = [hex length];
+	if (length != 3 && length != 6) {
+		return nil;
+	}
+	
+	NSUInteger digits = length / 3;
+	CGFloat maxValue = (digits == 1) ? 15.0f : 255.0f;
+	
+	CGFloat red = _integerFromHexString([hex substringWithRange:NSMakeRange(0, digits)]) / maxValue;
+	CGFloat green = _integerFromHexString([hex substringWithRange:NSMakeRange(digits, digits)]) / maxValue;
+	CGFloat blue = _integerFromHexString([hex substringWithRange:NSMakeRange(2 * digits, digits)]) / maxValue;
+	
+	return [UIColor colorWithRed:red green:green blue:blue alpha:1.0f];
+}
+@end
 
 @interface SYCompositor ()
 + (UIImage *)_drawWithLayers:(NSArray *)layers size:(CGSize)size;
@@ -104,7 +178,7 @@ NSString *const kSYCompositorGradientColorsHexesKey = @"gradientColorsHexes";
 		
 		// Blend mode
 		NSString *modeString = [dictionary objectForKey:kSYCompositorModeKey];
-		CGBlendMode blendMode = modeString ? CGBlendModeWithString(modeString) : kCGBlendModeNormal;
+		CGBlendMode blendMode = modeString ? _CGBlendModeWithString(modeString) : kCGBlendModeNormal;
 		CGContextSetBlendMode(context, blendMode);
 		
 		// Alpha
@@ -139,7 +213,7 @@ NSString *const kSYCompositorGradientColorsHexesKey = @"gradientColorsHexes";
 		if (!color) {
 			NSString *colorString = [dictionary objectForKey:kSYCompositorColorHexKey];
 			if (colorString) {
-				color = [UIColor colorWithHex:colorString];
+				color = [UIColor _colorWithHex:colorString];
 			}
 		}
 		
@@ -172,7 +246,7 @@ NSString *const kSYCompositorGradientColorsHexesKey = @"gradientColorsHexes";
 			NSArray  *colorStrings = [dictionary objectForKey:kSYCompositorGradientColorsKey];
 			NSMutableArray *colors = [[NSMutableArray alloc] initWithCapacity:[colorStrings count]];
 			for (NSString *hex in colorStrings) {
-				[colors addObject:[UIColor colorWithHex:hex]];
+				[colors addObject:[UIColor _colorWithHex:hex]];
 			}
 			CGGradientRef gradient = SSCreateGradientWithColors(colors);
 			[colors release];

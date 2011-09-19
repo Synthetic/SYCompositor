@@ -7,6 +7,7 @@
 //
 
 #import "SYCompositor.h"
+#import <SSToolkit/SSDrawingUtilities.h>
 
 NSString *const kSYCompositorModeKey = @"mode";
 NSString *const kSYCompositorRectKey = @"rect";

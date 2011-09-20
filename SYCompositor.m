@@ -163,7 +163,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 	}
 	
 	CGRect rect = CGRectMake(0.0f, 0.0f, size.width, size.height);
-	UIGraphicsBeginImageContext(size);
+	UIGraphicsBeginImageContextWithOptions(rect.size, NO, [[UIScreen mainScreen] scale]);
 	CGContextRef context = UIGraphicsGetCurrentContext();
 	
 	// Transform coordinates

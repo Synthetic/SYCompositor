@@ -152,8 +152,15 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 
 + (NSString *)_cachesDirectory {
-	NSString *cachesDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
-	return [cachesDirectory stringByAppendingPathComponent:@"SYCompositor"];
+	NSString *cachesDirectory = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
+								 lastObject] stringByAppendingPathComponent:@"SYCompositor"];
+	
+	CGFloat scale = [[UIScreen mainScreen] scale];
+	if (scale > 1.0f) {
+		cachesDirectory = [cachesDirectory stringByAppendingFormat:@"/%0.f/", scale];
+	}
+	
+	return cachesDirectory;
 }
 
 

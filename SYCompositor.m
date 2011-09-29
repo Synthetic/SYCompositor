@@ -147,19 +147,14 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 
 + (NSString *)pathForImageWithCacheName:(NSString *)cacheName {
-	return [[self _cachesDirectory] stringByAppendingPathComponent:cacheName];
+	NSString *scale = [[UIScreen mainScreen] scale] == 2.0f ? @"@2x" : @"";
+	return [[self _cachesDirectory] stringByAppendingFormat:@"/%@%@.png", cacheName, scale];
 }
 
 
 + (NSString *)_cachesDirectory {
 	NSString *cachesDirectory = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-								 lastObject] stringByAppendingPathComponent:@"SYCompositor"];
-	
-	CGFloat scale = [[UIScreen mainScreen] scale];
-	if (scale > 1.0f) {
-		cachesDirectory = [cachesDirectory stringByAppendingFormat:@"/%0.f/", scale];
-	}
-	
+								  lastObject] stringByAppendingPathComponent:@"SYCompositor"];	
 	return cachesDirectory;
 }
 

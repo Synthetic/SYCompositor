@@ -37,8 +37,8 @@ extern NSString *const kSYCompositorGradientColorsHexesKey;
 
 @interface SYCompositor : NSObject
 
-+ (UIImage *)imageWithCacheName:(NSString *)cacheName;
-+ (UIImage *)imageWithLayers:(NSArray *)layers size:(CGSize)size cacheName:(NSString *)cacheName;
-+ (NSString *)pathForImageWithCacheName:(NSString *)cacheName;
++ (UIImage *)imageWithKey:(NSString *)key;
++ (UIImage *)imageWithLayers:(NSArray *)layers size:(CGSize)size key:(NSString *)key;
++ (NSString *)pathForImageWithKey:(NSString *)key;
 
 @end

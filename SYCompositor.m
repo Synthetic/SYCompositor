@@ -109,16 +109,16 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 @implementation SYCompositor
 
-+ (UIImage *)imageWithCacheName:(NSString *)cacheName {
-	NSString *cachePath = [self pathForImageWithCacheName:cacheName];
++ (UIImage *)imageWithKey:(NSString *)key {
+	NSString *cachePath = [self pathForImageWithKey:key];
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	NSData *data = [fileManager contentsAtPath:cachePath];
 	return [UIImage imageWithData:data];
 }
 
 
-+ (UIImage *)imageWithLayers:(NSArray *)layers size:(CGSize)size cacheName:(NSString *)cacheName {
-	UIImage *image = [self imageWithCacheName:cacheName];
++ (UIImage *)imageWithLayers:(NSArray *)layers size:(CGSize)size key:(NSString *)key {
+	UIImage *image = [self imageWithKey:key];
 
 	// If no image on disk, draw it
 	if (!image) {
@@ -130,7 +130,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 			
 			// Create caches directory if necessary
 			NSFileManager *fileManager = [NSFileManager defaultManager];
-			NSString *cachePath = [self pathForImageWithCacheName:cacheName];
+			NSString *cachePath = [self pathForImageWithKey:key];
 			NSString *cachesDirectory = [self _cachesDirectory];
 			if (![fileManager fileExistsAtPath:cachesDirectory]) {
 				NSError *error = nil;
@@ -146,8 +146,8 @@ static NSUInteger _integerFromHexString(NSString *string) {
 }
 
 
-+ (NSString *)pathForImageWithCacheName:(NSString *)cacheName {
-	NSString *scale = [[UIScreen mainScreen] scale] == 2.0f ? @"@2x" : @"";
++ (NSString *)pathForImageWithKey:(NSString *)key {
+	return [[self _cachesDirectory] stringByAppendingPathComponent:key];
 	return [[self _cachesDirectory] stringByAppendingFormat:@"/%@%@.png", cacheName, scale];
 }
 

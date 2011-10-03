@@ -190,8 +190,19 @@ static NSUInteger _integerFromHexString(NSString *string) {
 		CGContextSetAlpha(context, alpha);
 		
 		// Rect
-		NSValue *rectValue = [dictionary objectForKey:kSYCompositorRectKey];
-		CGRect frame = rectValue ? [rectValue CGRectValue] : rect;
+		id rectValue = [dictionary objectForKey:kSYCompositorRectKey];
+		CGRect frame = CGRectZero;
+		if (rectValue) {
+			if ([rectValue isKindOfClass:[NSValue class]]) {
+				frame = [rectValue CGRectValue];
+			} else if ([rectValue isKindOfClass:[NSString class]]) {
+				frame = CGRectFromString(rectValue);
+			} else {
+				frame = rect;
+			}
+		} else {
+			frame = rect;
+		}
 		frame = CGRectMake(frame.origin.x, (size.height - frame.size.height) - frame.origin.y,
 						   frame.size.width, frame.size.height);
 		

@@ -147,8 +147,8 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 
 + (NSString *)pathForImageWithKey:(NSString *)key {
-	return [[self _cachesDirectory] stringByAppendingPathComponent:key];
-	return [[self _cachesDirectory] stringByAppendingFormat:@"/%@%@.png", cacheName, scale];
+	NSString *scale = [[UIScreen mainScreen] scale] == 2.0f ? @"@2x" : @"";
+	return [[self _cachesDirectory] stringByAppendingFormat:@"/%@%@.png", key, scale];
 }
 
 

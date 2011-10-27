@@ -257,13 +257,16 @@ static NSUInteger _integerFromHexString(NSString *string) {
 		// Draw gradient
 		NSString *gradientType = [dictionary objectForKey:kSYCompositorGradientKey];
 		if (gradientType) {
-			NSArray  *colorStrings = [dictionary objectForKey:kSYCompositorGradientColorsKey];
-			NSMutableArray *colors = [[NSMutableArray alloc] initWithCapacity:[colorStrings count]];
-			for (NSString *hex in colorStrings) {
-				[colors addObject:[UIColor _colorWithHex:hex]];
+			NSMutableArray *colors = [dictionary objectForKey:kSYCompositorGradientColorsKey];
+			if (!colors) {
+				NSArray *colorStrings = [dictionary objectForKey:kSYCompositorGradientColorsHexesKey];
+				colors = [NSMutableArray arrayWithCapacity:[colorStrings count]];
+				for (NSString *hex in colorStrings) {
+					[colors addObject:[UIColor _colorWithHex:hex]];
+				}
 			}
+			
 			CGGradientRef gradient = SSCreateGradientWithColors(colors);
-			[colors release];
 			
 			// Radial
 			if ([gradientType isEqualToString:@"radial"]) {

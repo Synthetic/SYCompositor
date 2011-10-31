@@ -105,13 +105,12 @@ static NSUInteger _integerFromHexString(NSString *string) {
 @interface SYCompositor ()
 + (UIImage *)_drawWithLayers:(NSArray *)layers size:(CGSize)size;
 + (SYCache *)_cache;
-+ (NSString *)_fullKeyForKey:(NSString *)key;
 @end
 
 @implementation SYCompositor
 
 + (UIImage *)imageWithKey:(NSString *)key {
-	return [[self _cache] objectForKey:[self _fullKeyForKey:key]];
+	return [[self _cache] imageForKey:key];
 }
 
 
@@ -124,7 +123,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 		
 		// If an image was rendered, save it
 		if (image) {
-			[[self _cache] setObject:image forKey:[self _fullKeyForKey:key]];			
+			[[self _cache] setImage:image forKey:key];			
 		}
 	}
 	
@@ -133,7 +132,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 
 + (NSString *)pathForImageWithKey:(NSString *)key {
-	return [[self _cache] pathForKey:[self _fullKeyForKey:key]];
+	return [[self _cache] pathForKey:key];
 }
 
 
@@ -294,12 +293,6 @@ static NSUInteger _integerFromHexString(NSString *string) {
 		cache = [[SYCache alloc] initWithName:@"com.syntheticcorp.sycompositor"];
 	});
 	return cache;
-}
-
-
-+ (NSString *)_fullKeyForKey:(NSString *)key {
-	NSString *scale = [[UIScreen mainScreen] scale] == 2.0f ? @"@2x" : @"";
-	return [key stringByAppendingFormat:@"%@", scale];
 }
 
 @end

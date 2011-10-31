@@ -104,13 +104,12 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 @interface SYCompositor ()
 + (UIImage *)_drawWithLayers:(NSArray *)layers size:(CGSize)size;
-+ (SYCache *)_cache;
 @end
 
 @implementation SYCompositor
 
 + (UIImage *)imageWithKey:(NSString *)key {
-	return [[self _cache] imageForKey:key];
+	return [[self cache] imageForKey:key];
 }
 
 
@@ -123,7 +122,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 		
 		// If an image was rendered, save it
 		if (image) {
-			[[self _cache] setImage:image forKey:key];			
+			[[self cache] setImage:image forKey:key];			
 		}
 	}
 	
@@ -132,7 +131,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 
 + (NSString *)pathForImageWithKey:(NSString *)key {
-	return [[self _cache] pathForKey:key];
+	return [[self cache] pathForKey:key];
 }
 
 
@@ -286,7 +285,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 #pragma mark - Private
 
-+ (SYCache *)_cache {
++ (SYCache *)cache {
 	static SYCache *cache = nil;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{

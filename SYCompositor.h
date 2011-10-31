@@ -35,10 +35,14 @@ extern NSString *const kSYCompositorGradientKey; // `radial` or `linear`
 extern NSString *const kSYCompositorGradientColorsKey;
 extern NSString *const kSYCompositorGradientColorsHexesKey;
 
+@class SYCache;
+
 @interface SYCompositor : NSObject
 
 + (UIImage *)imageWithKey:(NSString *)key;
 + (UIImage *)imageWithLayers:(NSArray *)layers size:(CGSize)size key:(NSString *)key;
 + (NSString *)pathForImageWithKey:(NSString *)key;
+
++ (SYCache *)cache;
 
 @end

@@ -7,7 +7,7 @@
 //
 
 #import "SYCompositor.h"
-#import <SSToolkit/SSDrawingUtilities.h>
+#import "SYCache.h"
 
 NSString *const kSYCompositorModeKey = @"mode";
 NSString *const kSYCompositorRectKey = @"rect";
@@ -104,41 +104,27 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 @interface SYCompositor ()
 + (UIImage *)_drawWithLayers:(NSArray *)layers size:(CGSize)size;
-+ (NSString *)_cachesDirectory;
++ (SYCache *)_cache;
++ (NSString *)_fullKeyForKey:(NSString *)key;
 @end
 
 @implementation SYCompositor
 
 + (UIImage *)imageWithKey:(NSString *)key {
-	NSString *cachePath = [self pathForImageWithKey:key];
-	NSFileManager *fileManager = [NSFileManager defaultManager];
-	NSData *data = [fileManager contentsAtPath:cachePath];
-	return [UIImage imageWithData:data];
+	return [[self _cache] objectForKey:[self _fullKeyForKey:key]];
 }
 
 
 + (UIImage *)imageWithLayers:(NSArray *)layers size:(CGSize)size key:(NSString *)key {
 	UIImage *image = [self imageWithKey:key];
 
-	// If no image on disk, draw it
+	// If no image, draw it
 	if (!image) {
 		image = [self _drawWithLayers:layers size:size];
 		
-		// If an image was rendered, save it to disk
+		// If an image was rendered, save it
 		if (image) {
-			NSData *data = UIImagePNGRepresentation(image);
-			
-			// Create caches directory if necessary
-			NSFileManager *fileManager = [NSFileManager defaultManager];
-			NSString *cachePath = [self pathForImageWithKey:key];
-			NSString *cachesDirectory = [self _cachesDirectory];
-			if (![fileManager fileExistsAtPath:cachesDirectory]) {
-				NSError *error = nil;
-				[fileManager createDirectoryAtPath:cachesDirectory withIntermediateDirectories:YES attributes:nil error:&error];
-			}
-			
-			// Save image
-			[fileManager createFileAtPath:cachePath contents:data attributes:nil];
+			[[self _cache] setObject:image forKey:[self _fullKeyForKey:key]];			
 		}
 	}
 	
@@ -147,15 +133,7 @@ static NSUInteger _integerFromHexString(NSString *string) {
 
 
 + (NSString *)pathForImageWithKey:(NSString *)key {
-	NSString *scale = [[UIScreen mainScreen] scale] == 2.0f ? @"@2x" : @"";
-	return [[self _cachesDirectory] stringByAppendingFormat:@"/%@%@.png", key, scale];
-}
-
-
-+ (NSString *)_cachesDirectory {
-	NSString *cachesDirectory = [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
-								  lastObject] stringByAppendingPathComponent:@"SYCompositor"];	
-	return cachesDirectory;
+	return [[self _cache] pathForKey:[self _fullKeyForKey:key]];
 }
 
 
@@ -266,7 +244,14 @@ static NSUInteger _integerFromHexString(NSString *string) {
 				}
 			}
 			
-			CGGradientRef gradient = SSCreateGradientWithColors(colors);
+			NSMutableArray *gradientColors = [[NSMutableArray alloc] initWithCapacity:[colors count]];
+			[colors enumerateObjectsUsingBlock:^(id object, NSUInteger index, BOOL *stop) {
+				[gradientColors addObject:(id)[(UIColor *)object CGColor]];
+			}];
+			
+			CGColorSpaceRef colorSpace = CGColorGetColorSpace([[colors objectAtIndex:0] CGColor]);
+			CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, (CFArrayRef)gradientColors, NULL);
+			[gradientColors release];
 			
 			// Radial
 			if ([gradientType isEqualToString:@"radial"]) {
@@ -297,6 +282,24 @@ static NSUInteger _integerFromHexString(NSString *string) {
 	UIGraphicsEndImageContext();
 	
 	return outputImage;
+}
+
+
+#pragma mark - Private
+
++ (SYCache *)_cache {
+	static SYCache *cache = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		cache = [[SYCache alloc] initWithName:@"com.syntheticcorp.sycompositor"];
+	});
+	return cache;
+}
+
+
++ (NSString *)_fullKeyForKey:(NSString *)key {
+	NSString *scale = [[UIScreen mainScreen] scale] == 2.0f ? @"@2x" : @"";
+	return [key stringByAppendingFormat:@"%@", scale];
 }
 
 @end

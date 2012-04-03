@@ -3,8 +3,10 @@
 //  SYCompositor
 //
 //  Created by Sam Soffes on 9/15/11.
-//  Copyright (c) 2011 Synthetic. All rights reserved.
+//  Copyright (c) 2011-2012 Synthetic. All rights reserved.
 //
+
+#import <Foundation/Foundation.h>
 
 // Blending mode
 extern NSString *const kSYCompositorModeKey;
@@ -36,6 +38,7 @@ extern NSString *const kSYCompositorGradientColorsKey;
 extern NSString *const kSYCompositorGradientColorsHexesKey;
 
 @class SYCache;
+@class UIImage;
 
 @interface SYCompositor : NSObject
 

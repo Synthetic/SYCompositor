@@ -3,11 +3,12 @@
 //  SYCompositor
 //
 //  Created by Sam Soffes on 9/15/11.
-//  Copyright (c) 2011 Synthetic. All rights reserved.
+//  Copyright (c) 2011-2012 Synthetic. All rights reserved.
 //
 
 #import "SYCompositor.h"
 #import "SYCache.h"
+#import <UIKit/UIKit.h>
 
 NSString *const kSYCompositorModeKey = @"mode";
 NSString *const kSYCompositorRectKey = @"rect";

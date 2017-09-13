@@ -68,9 +68,9 @@ static CGBlendMode _CGBlendModeWithString(NSString *string) {
 	return kCGBlendModeNormal;
 }
 
-static NSUInteger _integerFromHexString(NSString *string) {
-	NSUInteger result = 0;
-	sscanf([string UTF8String], "%x", &result);
+static unsigned long _integerFromHexString(NSString *string) {
+	unsigned long result = 0;
+	sscanf([string UTF8String], "%lx", &result);
 	return result;
 }
 
